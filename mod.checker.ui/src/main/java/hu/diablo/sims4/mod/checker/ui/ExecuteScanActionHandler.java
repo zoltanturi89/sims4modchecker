@@ -10,23 +10,30 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
-import hu.diablo.sims4.mod.checker.cache.ModDetailsCache;
-import hu.diablo.sims4.mod.checker.models.ModType;
-import hu.diablo.sims4.mod.checker.models.SimsModDetails;
+import hu.diablo.sims4.mod.checker.model.ModType;
+import hu.diablo.sims4.mod.checker.model.SimsModDetails;
+import hu.diablo.sims4.mod.checker.model.cache.ModDetailsCache;
+import mod.checker.backend.checks.CheckVersions;
+import mod.checker.backend.parser.Sims4ModDataParser;
+
 
 public class ExecuteScanActionHandler implements MouseListener {
 
 	Logger logger = Logger.getLogger(ExecuteScanActionHandler.class);
 	
 	String baseDir;
-	SimsModDetails modDetails;
 	
 	File baseFolder;
 	
 	ModDetailsCache cache;
 	
+	Sims4ModDataParser dataParser;
+	
+	CheckVersions versionChecker;
+	
 	public ExecuteScanActionHandler(String dir) {
 		this.baseDir = dir;
+		this.dataParser = new Sims4ModDataParser(dir);
 	}
 	
 	@Override
@@ -59,39 +66,11 @@ public class ExecuteScanActionHandler implements MouseListener {
 		
 		baseFolder = new File(baseDir);
 		
-		Collection<File> modFiles = FileUtils.listFiles(baseFolder, new String[] {"ts4script","package"}, true);
+		dataParser.parseMods();
 		
-		cache = ModDetailsCache.getInstance();
+		versionChecker = new CheckVersions(dataParser.getModList());
 		
-		modFiles.stream().forEach(item -> {
-			if(item.isDirectory()) {
-				return;
-			}
-			
-			SimsModDetails details = new SimsModDetails();
-			details.setModName(FilenameUtils.getBaseName(item.getName()));
-			
-			ArrayList<String> modFilesList = new ArrayList<String>();
-			modFilesList.add(item.getName());
-			
-			details.setModFiles(modFilesList);
-			
-			switch(FilenameUtils.getExtension(item.getName())) {
-			case "package":
-				details.setModType(ModType.SKIN_MOD);
-				break;
-			case "ts4script":
-				details.setModType(ModType.SCRIPT_MOD);
-				break;
-			default:
-				details.setModType(ModType.UNKNOWN);
-				break;
-			}
-			
-			cache.addDetails(details);
-			
-			logger.trace("Adding " + details.getModName() + " to cache!");
-		});
+		versionChecker.checkVersions();
 	}
 	
 	public void setBaseDir(String baseDir) {

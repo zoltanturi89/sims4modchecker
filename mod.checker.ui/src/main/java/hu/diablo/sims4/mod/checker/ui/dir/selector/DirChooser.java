@@ -9,6 +9,7 @@ import hu.diablo.sims4.mod.checker.ui.MainWindow;
 public class DirChooser {
 	JFileChooser fileChooser;
 	String chosenFolder;
+	Boolean isInitDone;
 	
 	Logger logger = Logger.getLogger(MainWindow.class);
 	
@@ -27,11 +28,11 @@ public class DirChooser {
 			chosenFolder = fileChooser.getSelectedFile().getAbsolutePath();
 			logger.info("Directory choosen:" + chosenFolder);
 		}
+		
+		isInitDone = true;
 	}
 	
 	public String getFolderPath() {
-
-		
 		return chosenFolder;
 	}
 }

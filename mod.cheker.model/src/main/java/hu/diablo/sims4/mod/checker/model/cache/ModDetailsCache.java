@@ -1,4 +1,4 @@
-package hu.diablo.sims4.mod.checker.cache;
+package hu.diablo.sims4.mod.checker.model.cache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import hu.diablo.sims4.mod.checker.models.SimsModDetails;
+import hu.diablo.sims4.mod.checker.model.SimsModDetails;
 
 public class ModDetailsCache {
 	private static ModDetailsCache instance = new ModDetailsCache();

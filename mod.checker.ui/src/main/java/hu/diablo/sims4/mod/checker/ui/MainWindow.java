@@ -19,14 +19,18 @@ import javax.swing.table.TableRowSorter;
 
 import org.apache.log4j.Logger;
 
-import hu.diablo.sims4.mod.checker.cache.IChangeEventListener;
-import hu.diablo.sims4.mod.checker.cache.ModDetailsCache;
-import hu.diablo.sims4.mod.checker.models.SimsModDetails;
+import hu.diablo.sims4.mod.checker.model.SimsModDetails;
+import hu.diablo.sims4.mod.checker.model.cache.IChangeEventListener;
+import hu.diablo.sims4.mod.checker.model.cache.ModDetailsCache;
 import hu.diablo.sims4.mod.checker.ui.dir.selector.DirChooser;
 import hu.diablo.sims4.mod.checker.ui.dir.selector.MouseClickActionHandler;
 
-public class MainWindow implements IChangeEventListener {
-	JFrame mainWindow;
+public class MainWindow extends JFrame implements IChangeEventListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	JMenuBar headerBar;
 	JMenu fileMenu;
 	JMenu modMenu;
@@ -46,9 +50,8 @@ public class MainWindow implements IChangeEventListener {
 	Logger logger = Logger.getLogger(MainWindow.class);
 	
 	public MainWindow() {
-		mainWindow = new JFrame("Sims 4 Mod checker");
-		mainWindow.setSize(800, 800);
-		mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		this.setSize(800, 800);
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
 		sims4ModDirChooser = new DirChooser();
 		
@@ -72,11 +75,11 @@ public class MainWindow implements IChangeEventListener {
 		panel.setMaximumSize(panel.getPreferredSize());
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
-		mainWindow.add(panel);
+		this.add(panel);
 		
-		mainWindow.setJMenuBar(headerBar);
+		this.setJMenuBar(headerBar);
 		
-		mainWindow.addWindowListener(new WindowActionHandler(this.mainWindow));
+		this.addWindowListener(new WindowActionHandler(this));
 		
 		tablePanel = new JScrollPane();
 		tablePanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -102,9 +105,7 @@ public class MainWindow implements IChangeEventListener {
 		panel.add(executeScan);
 		
 		ModDetailsCache.getInstance().addChangeListener(this);
-	}
-	
-	public void show() {
+		
 		sims4ModDirChooser.showDialog();
 		
 		logger.info("Selected directory:" + sims4ModDirChooser.getFolderPath());
@@ -112,11 +113,11 @@ public class MainWindow implements IChangeEventListener {
 		executeScanActionHandler = new ExecuteScanActionHandler(sims4ModDirChooser.getFolderPath());
 		executeScan.addMouseListener(executeScanActionHandler);
 		
-		mainWindow.pack();
-		mainWindow.setLocationByPlatform(true);
-		mainWindow.setVisible(true);	
+		this.pack();
+		this.setLocationByPlatform(true);
+		this.setVisible(true);	
 	}
-	
+
 	public void updateModDir() {
 		executeScanActionHandler.setBaseDir(sims4ModDirChooser.getFolderPath());		
 	}
