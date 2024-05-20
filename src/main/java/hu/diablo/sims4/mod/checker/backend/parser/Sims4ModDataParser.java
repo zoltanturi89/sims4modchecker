@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import hu.diablo.sims4.mod.checker.dbpf.DBPFFile;
 import hu.diablo.sims4.mod.checker.enitites.ModFile;
 import hu.diablo.sims4.mod.checker.enitites.ModType;
 import hu.diablo.sims4.mod.checker.enitites.SimsModDetails;
@@ -75,8 +76,19 @@ public class Sims4ModDataParser {
 				
 				details.setModFiles(modFilesList);
 				
+				int c = 0;
 				switch(FilenameUtils.getExtension(item.getName())) {
 				case "package":
+					if(c == 0) {
+						DBPFFile packageFile = new DBPFFile();
+						try {
+							packageFile.readDBPFFile(item.getAbsolutePath());
+						} catch(Exception ex) {
+							log.error(ex.getMessage(),ex);
+						}
+						++c;
+					}
+					
 					details.setModType(ModType.SKIN_MOD);
 					break;
 				case "ts4script":
