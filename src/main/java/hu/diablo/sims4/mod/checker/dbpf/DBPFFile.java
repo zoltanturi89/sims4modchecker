@@ -46,8 +46,8 @@ public class DBPFFile {
 		byte[] fileIndex = new byte[fileHeader.indexSize.intValue()];
 		
 		fis.read(fileIndex);
+	
+		
+		fis.close(); // clean up;
 	}
-	
-	
-	
 }
