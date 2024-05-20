@@ -6,6 +6,7 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import hu.diablo.sims4.mod.checker.enitites.SimsModDetails;
@@ -18,6 +19,8 @@ public class ConflictRowHighligther extends DefaultTableCellRenderer {
 	
 	private SimsModDetailsRepository modDetailsRepository;
 	
+	private static final Logger logger = Logger.getLogger(ConflictRowHighligther.class);
+	
 	@Autowired
 	public ConflictRowHighligther(SimsModDetailsRepository modDetailsRepository) {
 		this.modDetailsRepository = modDetailsRepository;
@@ -29,10 +32,18 @@ public class ConflictRowHighligther extends DefaultTableCellRenderer {
         Component cellComponent = super.getTableCellRendererComponent(table, value, 
         		isSelected, hasFocus, row, column);
         
-        SimsModDetails details = modDetailsRepository.findById(row-1).get();
+        int modelRowId = table.getRowSorter().convertRowIndexToModel(row);
         
-        if(details.getModFiles().size() > 1) {
+        int Id = (int)table.getModel().getValueAt(modelRowId, 0);
+        
+        logger.info("Checking for Id:" + Id);
+        
+        SimsModDetails details = modDetailsRepository.findById(Id).get();
+        
+        if(details.getModFiles().size() != 1) {
         	cellComponent.setBackground(Color.RED);
+        } else if(details.getModFiles().size() == 0) {
+        	cellComponent.setBackground(Color.GRAY);
         } else {
         	cellComponent.setBackground(Color.WHITE);
         }

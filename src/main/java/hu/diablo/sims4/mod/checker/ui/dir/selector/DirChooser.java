@@ -4,10 +4,12 @@ import javax.swing.JFileChooser;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import hu.diablo.sims4.mod.checker.backend.parser.Sims4ModDataParser;
 import hu.diablo.sims4.mod.checker.ui.MainWindow;
-import mod.checker.backend.parser.Sims4ModDataParser;
 
+@Component
 public class DirChooser {
 	JFileChooser fileChooser;
 	String chosenFolder;

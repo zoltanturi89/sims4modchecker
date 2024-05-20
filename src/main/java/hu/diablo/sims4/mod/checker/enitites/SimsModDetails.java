@@ -2,17 +2,24 @@ package hu.diablo.sims4.mod.checker.enitites;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "sims_mod_details")
+@Getter
+@Setter
 public class SimsModDetails {
 	
 	@Id
@@ -24,7 +31,8 @@ public class SimsModDetails {
 	@Enumerated(EnumType.STRING)
 	private ModType modType;
 	
-	private List<String> modFiles;
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+	private List<ModFile> modFiles;
 	
 	public SimsModDetails() {}
 
@@ -34,32 +42,12 @@ public class SimsModDetails {
 		this.modType = modType;
 	}
 	
-	public ModType getModType() {
-		return modType;
-	}
-	
-	public void setModType(ModType modType) {
-		this.modType = modType;
-	}
-	
-	public List<String> getModFiles() {
-		return modFiles;
-	}
-	
-	public void setModFiles(List<String> modFiles) {
-		this.modFiles = modFiles;
-	}
-	
-	public void addModFile(String modFile) {
-		this.modFiles.add(modFile);
-	}
-	
 	public String getModFilesAsString() {
 		
 		StringBuilder arr = new StringBuilder();
 		arr.append("[");
-		for(String modFile : modFiles) {
-			arr.append(modFile);
+		for(ModFile modFile : modFiles) {
+			arr.append(modFile.getName());
 			arr.append(",");
 		}
 		arr.deleteCharAt(arr.length()-1);
@@ -68,19 +56,4 @@ public class SimsModDetails {
 		return arr.toString();
 	}
 	
-	public String getModName() {
-		return this.modName;
-	}
-	
-	public void setModName(String modName) {
-		this.modName = modName;
-	}
-	
-	public int getId() {
-		return id; 
-	}
-	
-	public void setId(int id) {
-		this.id = id;
-	}
 }

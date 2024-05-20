@@ -8,9 +8,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import hu.diablo.sims4.mod.checker.backend.parser.Sims4ModDataParser;
 import hu.diablo.sims4.mod.checker.entities.repositories.SimsModDetailsRepository;
-import mod.checker.backend.checks.CheckVersions;
-import mod.checker.backend.parser.Sims4ModDataParser;
 
 @Component
 public class ExecuteScanActionHandler implements MouseListener {
@@ -23,14 +22,13 @@ public class ExecuteScanActionHandler implements MouseListener {
 	
 	Sims4ModDataParser dataParser;
 	
-	CheckVersions versionChecker;
+	MainWindow baseWindow;
 	
 	@Autowired
 	public ExecuteScanActionHandler(SimsModDetailsRepository repository,
-			Sims4ModDataParser dataParser,CheckVersions versionChecker) {
+			Sims4ModDataParser dataParser) {
 		this.detailsRepository = repository;
 		this.dataParser = dataParser;
-		this.versionChecker = versionChecker;
 	}
 	
 	@Override
@@ -63,10 +61,14 @@ public class ExecuteScanActionHandler implements MouseListener {
 		
 		dataParser.parseMods();
 		
-		versionChecker.checkVersions();
+		baseWindow.reDrawTable();
 	}
 	
 	public void setBaseDir(String dir) {
 		this.dataParser.setModDir(dir);
+	}
+	
+	public void setBaseWindow(MainWindow window) {
+		this.baseWindow = window;
 	}
 }

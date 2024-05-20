@@ -6,5 +6,5 @@ import hu.diablo.sims4.mod.checker.enitites.SimsModDetails;
 
 public interface SimsModDetailsRepository extends JpaRepository<SimsModDetails, Integer> {
 	
-	public Iterable<SimsModDetails> findByName(String name);
+	public Iterable<SimsModDetails> findByModName(String modName);
 }

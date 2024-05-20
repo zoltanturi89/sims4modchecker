@@ -1,6 +1,7 @@
 package hu.diablo.sims4.mod.checker.ui;
 
 import java.awt.Dimension;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -16,18 +17,20 @@ import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.transaction.Transactional;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import hu.diablo.sims4.mod.checker.enitites.SimsModDetails;
-import hu.diablo.sims4.mod.checker.model.event.listeners.IChangeEventListener;
+import hu.diablo.sims4.mod.checker.entities.repositories.SimsModDetailsRepository;
 import hu.diablo.sims4.mod.checker.ui.dir.selector.DirChooser;
 import hu.diablo.sims4.mod.checker.ui.dir.selector.MouseClickActionHandler;
+import hu.diablo.sims4.mod.checker.ui.table.ConflictRowHighligther;
 
 @Component
-public class MainWindow extends JFrame implements IChangeEventListener {
+public class MainWindow extends JFrame {
 	/**
 	 * 
 	 */
@@ -51,11 +54,20 @@ public class MainWindow extends JFrame implements IChangeEventListener {
 	
 	Logger logger = Logger.getLogger(MainWindow.class);
 	
+	SimsModDetailsRepository modDetailsRepository;
+	ConflictRowHighligther conflictRowHighligther;
+	
 	@Autowired
 	public MainWindow(DirChooser sims4ModDirChooser, 
-			ExecuteScanActionHandler executeScanActionHandler) {
+			ExecuteScanActionHandler executeScanActionHandler,
+			SimsModDetailsRepository modDetailsRepository,
+			ConflictRowHighligther conflictRowHighligther) {
 		this.sims4ModDirChooser = sims4ModDirChooser;
 		this.executeScanActionHandler = executeScanActionHandler;
+		this.modDetailsRepository = modDetailsRepository;
+		this.conflictRowHighligther = conflictRowHighligther;
+		
+		executeScanActionHandler.setBaseWindow(this);
 		
 		this.setSize(800, 800);
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -91,13 +103,14 @@ public class MainWindow extends JFrame implements IChangeEventListener {
 		tablePanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		
 		tableModel = new DefaultTableModel(null, 
-				new Object[] {"Mod name","Mod type","Mod files"});
+				new Object[] {"ID","Mod name","Mod type","Mod files"});
 		
 		baseTable = new JTable(tableModel);
-		baseTable.getColumnModel().getColumn(0);
-		baseTable.getColumnModel().getColumn(1);
-		baseTable.getColumnModel().getColumn(2);
 		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(baseTable.getModel());
+		baseTable.getColumnModel().getColumn(0).setCellRenderer(conflictRowHighligther);
+		baseTable.getColumnModel().getColumn(1).setCellRenderer(conflictRowHighligther);
+		baseTable.getColumnModel().getColumn(2).setCellRenderer(conflictRowHighligther);
+		baseTable.getColumnModel().getColumn(3).setCellRenderer(conflictRowHighligther);
 		baseTable.setRowSorter(sorter);
 		baseTable.setFillsViewportHeight(true);
 		baseTable.setPreferredScrollableViewportSize(new Dimension(800,800));
@@ -123,34 +136,26 @@ public class MainWindow extends JFrame implements IChangeEventListener {
 	}
 
 	public void updateModDir() {
-		executeScanActionHandler.setBaseDir(sims4ModDirChooser.getFolderPath());		
+		executeScanActionHandler.setBaseDir(sims4ModDirChooser.getFolderPath());	
 	}
-
-	@Override
-	public void objectAdded(Object added) {
-		SimsModDetails details = (SimsModDetails)added;
-		Vector<Object> addRowV = new Vector<Object>();
-		addRowV.add(details.getModName());
-		addRowV.add(details.getModType());
-		addRowV.add(details.getModFilesAsString());
+	
+	@Transactional
+	public void reDrawTable() {
+		tableModel.setRowCount(0);
 		
-		tableModel.addRow(addRowV);
-		tableModel.fireTableRowsInserted(tableModel.getRowCount()-1, tableModel.getRowCount()-1);
-	}
-
-	@Override
-	public void objectModified(Object modified) {
-		SimsModDetails details = (SimsModDetails)modified;
+		List<SimsModDetails> modDetails = modDetailsRepository.findAll();
 		
-		tableModel.setValueAt(details.getModFilesAsString(), details.getId()+1, 2);
-		tableModel.fireTableRowsUpdated(details.getId()+1, details.getId()+1);
-	}
+		modDetails.stream().forEach(details -> {
+			Vector<Object> addRowV = new Vector<Object>();
+			addRowV.add(details.getId());
+			addRowV.add(details.getModName());
+			addRowV.add(details.getModType());
+			addRowV.add(details.getModFilesAsString());
+			
+			tableModel.addRow(addRowV);
+		});
 
-	@Override
-	public void objectDeleted(Object deleted) {
-		SimsModDetails details = (SimsModDetails)deleted;
-		
-		tableModel.removeRow(details.getId()+1);
+		tableModel.fireTableRowsInserted(0, tableModel.getRowCount()-1);
 	}
 }
 
