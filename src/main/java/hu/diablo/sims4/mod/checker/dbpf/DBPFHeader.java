@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import hu.diablo.sims4.mod.checker.dbpf.exception.DBPFReadException;
+import hu.diablo.sims4.mod.checker.utils.ByteConverterUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,15 +45,15 @@ public class DBPFHeader {
 		byte[] headerData = Arrays.copyOfRange(header, startIdx, startIdx + len);
 		startIdx += len;
 		
-		parseDBPFIDentifier(headerData);
+		this.setDbpfIdentifier(ByteConverterUtils.parseDBPFIDentifier(headerData));
 		
 		//Versions
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setMajorVersion(parseVersionData(headerData));
+		this.setMajorVersion(ByteConverterUtils.parseVersionData(headerData));
 		startIdx += len;
 		
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setMinorVersion(parseVersionData(headerData));
+		this.setMinorVersion(ByteConverterUtils.parseVersionData(headerData));
 		startIdx += len;
 		
 		//3 unknown fields
@@ -70,49 +71,49 @@ public class DBPFHeader {
 		
 		//Date Created and Modified
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setDateCreated(parseDateValue(headerData));
+		this.setDateCreated(ByteConverterUtils.parseDateValue(headerData));
 		startIdx += len;
 		
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setDateModified(parseDateValue(headerData));
+		this.setDateModified(ByteConverterUtils.parseDateValue(headerData));
 		startIdx += len;
 		
 		//Index details
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setIndexMajorVersion(parseVersionData(headerData));
+		this.setIndexMajorVersion(ByteConverterUtils.parseVersionData(headerData));
 		startIdx += len;
 		
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setEntryCount(parseLongValue(headerData));
+		this.setEntryCount(ByteConverterUtils.parseLongValue(headerData));
 		startIdx += len;
 		
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setFirstIndexOffset(parseLongValue(headerData));
+		this.setFirstIndexOffset(ByteConverterUtils.parseLongValue(headerData));
 		startIdx += len;
 		
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setIndexSize(parseLongValue(headerData));
+		this.setIndexSize(ByteConverterUtils.parseLongValue(headerData));
 		startIdx += len;
 		
 		//Hole Entry details
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setHoleEntryCount(parseLongValue(headerData));
+		this.setHoleEntryCount(ByteConverterUtils.parseLongValue(headerData));
 		startIdx += len;
 		
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setHoleOffset(parseLongValue(headerData));
+		this.setHoleOffset(ByteConverterUtils.parseLongValue(headerData));
 		startIdx += len;
 		
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setHoleSize(parseLongValue(headerData));
+		this.setHoleSize(ByteConverterUtils.parseLongValue(headerData));
 		startIdx += len;
 		
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setIndexMinorVersion(parseVersionData(headerData));
+		this.setIndexMinorVersion(ByteConverterUtils.parseVersionData(headerData));
 		startIdx += len;
 		
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
-		this.setIndexOffset(parseLongValue(headerData));
+		this.setIndexOffset(ByteConverterUtils.parseLongValue(headerData));
 		startIdx += len;
 		
 		headerData = Arrays.copyOfRange(header, startIdx,startIdx + len);
@@ -125,39 +126,5 @@ public class DBPFHeader {
 		
 	}
 	
-	private void parseDBPFIDentifier(byte[] headerData) throws DBPFReadException {
-		String dbpfSpecStr = "";
-		for(int i = 0; i < headerData.length; ++i) {
-			dbpfSpecStr += (char)headerData[i];
-		}
-		
-		if(!dbpfSpecStr.equals("DBPF")) {
-			throw new DBPFReadException("DBPF file header was invalid!");
-		}
-		
-		this.setDbpfIdentifier(dbpfSpecStr);
-	}
-	
-	private String parseVersionData(byte[] headerData) {
-		String versionData = "";
-		for(int i = 0; i < headerData.length; ++i) {
-			versionData += Byte.toUnsignedInt(headerData[i]);
-		}
-		
-		return versionData;
-	}
-	
-	private Long parseLongValue(byte[] headerData) {
-		Long base = 256L;
-		Long value = 0L;
-		for(int i = headerData.length-1; i >= 0; --i) {
-			value = (value * base) + Byte.toUnsignedLong(headerData[i]);
-		}
-		return value;
-	}
-	
-	private Date parseDateValue(byte[] headerData) {
-		Long unixTimestamp = parseLongValue(headerData);
-		return new Date(unixTimestamp*1000);
-	}
+
 }

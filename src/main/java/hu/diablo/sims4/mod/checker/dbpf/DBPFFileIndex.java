@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import hu.diablo.sims4.mod.checker.dbpf.index.DBPFBaseIndexEntry;
 import lombok.Getter;
 
 @Getter
 public class DBPFFileIndex {
-	List<DBPFFileData> fileData;
+	List<DBPFBaseIndexEntry> indexEntries;
 	int version;
-	int entrySize;
 	int entryCount;
 	
 	public static final int IDX_VERSION_1_SIZE = 24;
@@ -18,33 +18,26 @@ public class DBPFFileIndex {
 	public static final int IDX_VERSION_3_SIZE = 24;
 	
 	public DBPFFileIndex(int version,int entryCount) {
-		fileData = new ArrayList<DBPFFileData>();
+		indexEntries = new ArrayList<DBPFBaseIndexEntry>();
 		this.version = version;
-		switch(version) {
-		case 1:
-			this.entrySize = IDX_VERSION_1_SIZE;
-			break;
-		case 2:
-			this.entrySize = IDX_VERSION_2_SIZE;
-			break;
-		case 3:
-			this.entrySize = IDX_VERSION_3_SIZE;
-			break;
-		}
-		
+
 		this.entryCount = entryCount;
 	}
 	
 	public void parseIndexData(byte[] header) {
 		int startIdx = 0;
+		int entrySize = 
+				DBPFBaseIndexEntry.createIndexEntry(version).getEntrySize();
 		for(int i = 0; i < entryCount; ++i) {
-			DBPFFileData newFileData = new DBPFFileData();
-			
 			byte[] entryDetails = Arrays.copyOfRange(header,startIdx, startIdx + entrySize);
 			
-			newFileData.parseFileData(entryDetails);
+			DBPFBaseIndexEntry indexEntry = 
+					DBPFBaseIndexEntry.createIndexEntry(version);
 			
-			this.fileData.add(newFileData);
+			indexEntry.parseData(entryDetails);
+			
+			this.indexEntries.add(indexEntry);
+			startIdx = startIdx + entrySize;
 		}
 	}
 }

@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import hu.diablo.sims4.mod.checker.dbpf.DBPFFile;
+import hu.diablo.sims4.mod.checker.dbpf.DBPFArchive;
 import hu.diablo.sims4.mod.checker.enitites.ModFile;
 import hu.diablo.sims4.mod.checker.enitites.ModType;
 import hu.diablo.sims4.mod.checker.enitites.SimsModDetails;
@@ -80,7 +80,7 @@ public class Sims4ModDataParser {
 				switch(FilenameUtils.getExtension(item.getName())) {
 				case "package":
 					if(c == 0) {
-						DBPFFile packageFile = new DBPFFile();
+						DBPFArchive packageFile = new DBPFArchive();
 						try {
 							packageFile.readDBPFFile(item.getAbsolutePath());
 						} catch(Exception ex) {
