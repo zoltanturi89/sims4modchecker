@@ -19,6 +19,7 @@ import hu.diablo.sims4.mod.checker.enitites.ModFile;
 import hu.diablo.sims4.mod.checker.enitites.ModType;
 import hu.diablo.sims4.mod.checker.enitites.SimsModDetails;
 import hu.diablo.sims4.mod.checker.entities.repositories.SimsModDetailsRepository;
+import hu.diablo.sims4.mod.checker.script.ScriptModPackage;
 
 @Component
 public class Sims4ModDataParser {
@@ -93,6 +94,7 @@ public class Sims4ModDataParser {
 					break;
 				case "ts4script":
 					details.setModType(ModType.SCRIPT_MOD);
+					ScriptModPackage scriptModPackage = new ScriptModPackage(item.getAbsolutePath());
 					break;
 				default:
 					details.setModType(ModType.UNKNOWN);
